@@ -1,17 +1,7 @@
-import { type Angle, type Brick, type Storyboard, l } from "./types";
+import { type Angle, type Storyboard, l } from "./types";
 
 /** Espace insécable avant « ? », « : », « ! » (typographie française). */
 const nb = " ";
-
-export const BRICKS_FR: Brick[] = [
-  { code: "P-01", name: "PickyVoice", domain: "VOIX · TÉLÉPHONIE" },
-  { code: "P-02", name: "PickyOrder", domain: "COMMANDES" },
-  { code: "P-03", name: "PickyScan", domain: "GÉOCODES" },
-  { code: "P-04", name: "PickyLex", domain: "DOCUMENTS · JURIDIQUE" },
-  { code: "P-05", name: "PickyDesk", domain: "DOCUMENTS · PME" },
-  { code: "P-06", name: "PickyPress", domain: "CONTENUS" },
-  { code: "P-07", name: "PickyStudio", domain: "SUR MESURE" },
-];
 
 const EYEBROW = "// INFRASTRUCTURE IA · MARQUE BLANCHE";
 const TAB = "SPEC · 7 BRIQUES";

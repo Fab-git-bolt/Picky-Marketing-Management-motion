@@ -1,17 +1,19 @@
 import { color, radius } from "../brand/tokens";
 import { display, monoFamily } from "../brand/fonts";
-import type { Brick } from "../copy";
+import type { Product } from "../brand/products";
 import { useAppear } from "./motion";
 import { useSize } from "./Frame";
+import { ProductMark } from "./ProductMark";
 
 /**
  * Spec card — élément signature. Fiche mono sur fond Ink, onglet chevauchant
- * le bord supérieur, pointillés entre les lignes. Les lignes apparaissent
- * l'une après l'autre (`stagger` frames d'écart) à partir de `start`.
+ * le bord supérieur, pointillés entre les lignes. Chaque ligne : pastille
+ * produit · nom en Fraunces 500 · code mono. Les lignes apparaissent l'une
+ * après l'autre (`stagger` frames d'écart) à partir de `start`.
  */
 export const SpecCard: React.FC<{
   tab: string;
-  bricks: Brick[];
+  bricks: Product[];
   start?: number;
   stagger?: number;
 }> = ({ tab, bricks, start = 0, stagger = 3 }) => {
@@ -26,7 +28,7 @@ export const SpecCard: React.FC<{
         border: `1px solid ${color.rule}`,
         borderRadius: radius.card,
         boxShadow: "0 30px 80px -30px rgba(11, 18, 32, 0.40)",
-        padding: `${s(44)}px ${s(40)}px ${s(28)}px`,
+        padding: `${s(40)}px ${s(40)}px ${s(20)}px`,
         ...card,
       }}
     >
@@ -49,38 +51,27 @@ export const SpecCard: React.FC<{
         {tab}
       </span>
       {bricks.map((b, i) => (
-        <Row key={b.code} brick={b} last={i === bricks.length - 1} start={start + 6 + i * stagger} />
+        <Row key={b.code} product={b} last={i === bricks.length - 1} start={start + 6 + i * stagger} />
       ))}
     </div>
   );
 };
 
-const Row: React.FC<{ brick: Brick; last: boolean; start: number }> = ({ brick, last, start }) => {
+const Row: React.FC<{ product: Product; last: boolean; start: number }> = ({ product, last, start }) => {
   const s = useSize();
   const appear = useAppear(start, 9);
   return (
     <div
       style={{
         display: "flex",
-        alignItems: "baseline",
-        gap: s(24),
-        padding: `${s(15)}px 0`,
+        alignItems: "center",
+        gap: s(26),
+        padding: `${s(9)}px 0`,
         borderBottom: last ? "none" : `1px dashed ${color.perforation}`,
         ...appear,
       }}
     >
-      <span
-        style={{
-          fontFamily: monoFamily,
-          fontSize: s(19),
-          letterSpacing: "0.15em",
-          color: color.sky,
-          width: s(130),
-          flexShrink: 0,
-        }}
-      >
-        {`// ${brick.code}`}
-      </span>
+      <ProductMark product={product} size={s(60)} />
       <span
         style={{
           fontFamily: display,
@@ -92,19 +83,18 @@ const Row: React.FC<{ brick: Brick; last: boolean; start: number }> = ({ brick, 
           flex: 1,
         }}
       >
-        {brick.name}
+        {product.name}
       </span>
       <span
         style={{
           fontFamily: monoFamily,
-          fontSize: s(16),
+          fontSize: s(19),
           letterSpacing: "0.15em",
-          color: color.wire,
-          textAlign: "right",
+          color: color.sky,
           whiteSpace: "nowrap",
         }}
       >
-        {brick.domain}
+        {`// ${product.code}`}
       </span>
     </div>
   );

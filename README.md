@@ -32,7 +32,8 @@ Autres formats : `npx remotion render <angle>-<1x1|4x5|9x16> out/<fichier>.mp4`
 src/
   brand/      tokens (couleurs, mouvement), polices, formats + safe zones
   copy/       textes par langue et par angle (seul endroit à éditer pour le texte)
-  components/ Headline (soulignement rouille), SpecCard, Wordmark, Mono/Eyebrow/Tag…
+  brand/products.ts  catalogue des 8 marques (code, nom, lettre-clé)
+  components/ Headline (soulignement rouille), SpecCard, ProductMark, Wordmark, Mono/Eyebrow/Tag…
   scenes/     découpage temporel commun + les six scènes
   PickyAd.tsx composition paramétrable
   Root.tsx    une composition par angle × format
@@ -52,9 +53,13 @@ public/fonts/ Fraunces, Inter, JetBrains Mono (auto-hébergées, OFL-1.1)
 
 ## Garde-fous de charte appliqués dans le code
 
-- Fond (`src/components/Background.tsx`) : voile diagonal 135° Ink → Marine, trame mono
-  `//` · `·` · `P-01…P-07` à 5 % de Paper en dérive lente (atténuée derrière le texte),
-  filets de marge 1 px Paper 12 %. Aucune icône, image ni rouille.
+- Pastilles produit (`src/components/ProductMark.tsx`) : reconstruction SVG de la charte §05
+  (grille 64, carré 56 arrondi 6, « P » + lettre-clé Fraunces 30, point Signal r 4,5 ;
+  PickyStudio inversé). Utilisées dans la spec card et en fond.
+- Fond (`src/components/Background.tsx`) : voile diagonal 135° Ink → Marine ; trame de
+  pastilles en **grille régulière et alignée, disposition ordonnée — jamais aléatoire** —
+  même taille, même opacité (6 %), 2 pastilles au plus légèrement mises en avant (10 %),
+  PickyStudio exclu ; filets de marge 1 px Paper 12 %.
 - Fond Ink `#0B1220`, texte Paper `#F5F3EE` — jamais de `#FFFFFF`.
 - Rouille `#C4491D` uniquement pour le soulignement d'un mot-clé (3 px, décalé de 5 px)
   et le point du logo. Pas de bouton plein, pas d'aplat.

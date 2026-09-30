@@ -1,6 +1,7 @@
 import { color, radius } from "../brand/tokens";
 import { body, monoFamily } from "../brand/fonts";
-import type { Brick, Line, Storyboard } from "../copy";
+import type { Product } from "../brand/products";
+import type { Line, Storyboard } from "../copy";
 import { Stack, useSize } from "../components/Frame";
 import { Headline } from "../components/Headline";
 import { Eyebrow, Mono, Tag } from "../components/Mono";
@@ -60,7 +61,7 @@ export const ProblemScene: React.FC<{ story: Storyboard }> = ({ story }) => (
 );
 
 /** 6–11 s · spec card des sept briques. */
-export const SpecScene: React.FC<{ story: Storyboard; bricks: Brick[] }> = ({ story, bricks }) => {
+export const SpecScene: React.FC<{ story: Storyboard; bricks: Product[] }> = ({ story, bricks }) => {
   const { lead, tab, conclusion, followUp } = story.spec;
   const cardAt = lead ? 30 : 0;
   const rowsDone = cardAt + 6 + bricks.length * 3 + 9;

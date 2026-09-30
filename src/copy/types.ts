@@ -5,8 +5,6 @@
 export type Run = { text: string; underline?: boolean };
 export type Line = { runs: Run[]; italic?: boolean };
 
-export type Brick = { code: string; name: string; domain: string };
-
 export type Storyboard = {
   eyebrow: string;
   /** 0–2 s */

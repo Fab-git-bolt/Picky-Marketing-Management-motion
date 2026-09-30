@@ -1,16 +1,19 @@
 import { useMemo } from "react";
-import { AbsoluteFill, random, useCurrentFrame } from "remotion";
+import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { FORMATS, type Format } from "../brand/formats";
+import { ALL_MARKS, type Product } from "../brand/products";
+
+const TRAME_MARKS = ALL_MARKS.filter((p) => !p.studio);
 import { color } from "../brand/tokens";
-import { monoFamily } from "../brand/fonts";
 import { useProgress } from "./motion";
+import { ProductMark } from "./ProductMark";
 
 /**
  * Fond commun aux deux angles, toujours derrière le texte.
  * 1. Voile marine diagonal (135°) Ink → Marine.
- * 2. Trame typographique « // », « · », « P-01…P-07 » à ~5 % de Paper, en dérive lente.
+ * 2. Trame de pastilles produit (§05) en grille régulière, ~6 % d'opacité, dérive lente.
  * 3. Filets 1 px Paper 12 % en marges de plan technique.
- * Aucune icône, aucune image, aucune couleur hors charte, pas de rouille.
+ * Aucune icône, aucune image, aucune couleur hors charte.
  */
 export const Background: React.FC<{ format: Format }> = ({ format }) => (
   <AbsoluteFill>
@@ -24,69 +27,68 @@ export const Background: React.FC<{ format: Format }> = ({ format }) => (
   </AbsoluteFill>
 );
 
-const GLYPHS = ["//", "·", "P-01", "P-02", "P-03", "P-04", "P-05", "P-06", "P-07"];
-const CELL_X = 216;
-const CELL_Y = 150;
-/** Dérive continue, en px par frame (≈ 120 px × 60 px sur 20 s). */
-const DRIFT = { x: 0.2, y: -0.1 };
-const TRAME_OPACITY = 0.05;
+/*
+ * Trame de pastilles — RÈGLE : disposition ordonnée, jamais aléatoire.
+ * Grille régulière et alignée (même pas en x et en y, pas de quinconce,
+ * pas de case vide), toutes les pastilles à la même taille et à la même
+ * opacité. Ordre déterministe : les marques se succèdent en lecture
+ * ligne par ligne. PickyStudio (aplat Signal) est exclu du fond : ses
+ * tuiles rouilles ressortiraient comme des taches et casseraient l'ordre. Deux pastilles au plus sont légèrement mises en avant.
+ * Ne pas réintroduire de tirage aléatoire ici.
+ */
+const CELL = 216; // 1080 / 5 : cinq colonnes exactes, centrées sur le cadre.
+const MARK_SIZE = 104;
+const MARK_OPACITY = 0.06;
+const HIGHLIGHT_OPACITY = 0.1;
+/** Dérive continue, verticale uniquement : ≈ 90 px vers le haut sur 20 s. */
+const DRIFT_Y = -0.15;
 
 const Trame: React.FC<{ format: Format }> = ({ format }) => {
   const frame = useCurrentFrame();
   const { width, height } = FORMATS[format];
   const appear = useProgress(0, 12);
 
-  // Grille décalée en quinconce, plus grande que le cadre pour couvrir la dérive.
   const cells = useMemo(() => {
-    const out: { x: number; y: number; glyph: string }[] = [];
-    const cols = Math.ceil(width / CELL_X) + 3;
-    const rows = Math.ceil(height / CELL_Y) + 3;
-    for (let r = 0; r < rows; r++) {
+    const cols = Math.round(width / CELL);
+    // Rangées centrées verticalement, une de plus de chaque côté pour couvrir la dérive.
+    const rowsHalf = Math.ceil(height / 2 / CELL) + 1;
+    const out: { x: number; y: number; product: Product; key: string }[] = [];
+    let i = 0;
+    for (let r = -rowsHalf; r <= rowsHalf; r++) {
       for (let c = 0; c < cols; c++) {
-        // Grille lâche : environ une case sur trois reste vide.
-        if (random(`trame-skip-${r}-${c}`) < 0.33) continue;
-        const glyph = GLYPHS[Math.floor(random(`trame-glyph-${r}-${c}`) * GLYPHS.length)];
         out.push({
-          x: (c - 2) * CELL_X + (r % 2) * (CELL_X / 2),
-          y: (r - 1) * CELL_Y,
-          glyph,
+          x: CELL / 2 + c * CELL,
+          y: height / 2 + r * CELL,
+          product: TRAME_MARKS[i % TRAME_MARKS.length],
+          key: `${r}:${c}`,
         });
+        i++;
       }
     }
-    return out;
+    // Deux pastilles mises en avant, aux coins opposés (haut droit, bas gauche).
+    const nearest = (tx: number, ty: number) =>
+      out.reduce((best, cell) =>
+          Math.hypot(cell.x - tx, cell.y - ty) < Math.hypot(best.x - tx, best.y - ty) ? cell : best,
+        ).key;
+    const highlighted = new Set([nearest(width - CELL / 2, CELL / 2), nearest(CELL / 2, height - CELL / 2)]);
+    return out.map((cell) => ({ ...cell, highlight: highlighted.has(cell.key) }));
   }, [width, height]);
 
-  // Masque fixe (hors dérive) : la trame s'efface au centre, derrière le texte,
-  // et reste perceptible dans les marges.
-  const mask = "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0.3) 30%, #000 100%)";
   return (
-    <AbsoluteFill style={{ maskImage: mask, WebkitMaskImage: mask }}>
-    <AbsoluteFill
-      style={{
-        opacity: appear,
-        transform: `translate(${frame * DRIFT.x}px, ${frame * DRIFT.y}px)`,
-      }}
-    >
-      {cells.map((cell, i) => (
-        <span
-          key={i}
+    <AbsoluteFill style={{ opacity: appear, transform: `translateY(${frame * DRIFT_Y}px)` }}>
+      {cells.map((cell) => (
+        <ProductMark
+          key={cell.key}
+          product={cell.product}
+          size={MARK_SIZE}
           style={{
             position: "absolute",
-            left: cell.x,
-            top: cell.y,
-            fontFamily: monoFamily,
-            fontSize: 20,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: color.paper,
-            opacity: TRAME_OPACITY,
-            whiteSpace: "nowrap",
+            left: cell.x - MARK_SIZE / 2,
+            top: cell.y - MARK_SIZE / 2,
+            opacity: cell.highlight ? HIGHLIGHT_OPACITY : MARK_OPACITY,
           }}
-        >
-          {cell.glyph}
-        </span>
+        />
       ))}
-    </AbsoluteFill>
     </AbsoluteFill>
   );
 };
