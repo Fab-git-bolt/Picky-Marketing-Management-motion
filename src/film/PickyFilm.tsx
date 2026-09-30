@@ -43,6 +43,10 @@ const MUSIC = {
   volume: { texte: 0.18, "voix-off": 0.12 } as Record<FilmMode, number>,
   fadeIn: Math.round(0.5 * FPS),
   fadeOut: 1 * FPS,
+  /** Ducking en voix-off : volume pendant que la voix parle. */
+  ducked: 0.07,
+  /** Rampe du ducking, avant et après chaque voix : 0,3 s. */
+  duckRamp: Math.round(0.3 * FPS),
 };
 
 export type PickyFilmProps = {
@@ -99,9 +103,26 @@ const Veil: React.FC = () => (
 );
 
 /** Musique de fond, fondus calés sur la durée réelle du film. */
-const Music: React.FC<{ mode: FilmMode; duration?: number }> = ({ mode, duration }) => {
+const Music: React.FC<{ mode: FilmMode; duration?: number; voices: [number, number][] }> = ({
+  mode,
+  duration,
+  voices,
+}) => {
   const { durationInFrames } = useVideoConfig();
   const loop = duration !== undefined && duration * FPS < durationInFrames;
+  const base = MUSIC.volume[mode];
+  // Ducking : la musique descend à MUSIC.ducked pendant chaque voix, rampes de 0,3 s
+  // (la descente se termine au moment où la voix commence, la remontée démarre à sa fin).
+  const duck = (f: number) =>
+    voices.reduce((level, [from, to]) => {
+      const d = interpolate(
+        f,
+        [from - MUSIC.duckRamp, from, to, to + MUSIC.duckRamp],
+        [1, MUSIC.ducked / base, MUSIC.ducked / base, 1],
+        { easing: ease, extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+      );
+      return Math.min(level, d);
+    }, 1);
   return (
     <Audio
       src={staticFile(MUSIC.file)}
@@ -109,7 +130,8 @@ const Music: React.FC<{ mode: FilmMode; duration?: number }> = ({ mode, duration
       // Avec la boucle, la courbe de volume suit le temps du film et non celui de chaque tour.
       loopVolumeCurveBehavior="extend"
       volume={(f) =>
-        MUSIC.volume[mode] *
+        base *
+        duck(f) *
         interpolate(
           f,
           [0, MUSIC.fadeIn, durationInFrames - MUSIC.fadeOut, durationInFrames],
@@ -248,7 +270,18 @@ export const PickyFilm: React.FC<PickyFilmProps> = (props) => {
           </Sequence>
         );
       })}
-      <Music mode={mode} duration={props.musicDuration} />
+      <Music
+        mode={mode}
+        duration={props.musicDuration}
+        voices={
+          mode === "voix-off" && props.voiceDurations
+            ? props.voiceDurations.map((d, i): [number, number] => [
+                starts[i] + VOICE_OFFSET,
+                starts[i] + VOICE_OFFSET + Math.ceil(d * FPS),
+              ])
+            : []
+        }
+      />
       {/* Voix off : volume plein, 0,3 s après le début de chaque plan. */}
       {mode === "voix-off" &&
         FILM_SHOTS.map((shot, i) => (
