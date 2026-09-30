@@ -8,6 +8,8 @@ export type FilmMode = "texte" | "voix-off";
 export type FilmShot = {
   /** Fichier dans public/clips/. */
   clip: string;
+  /** Voix off du plan (mode « voix-off » uniquement), dans public/. */
+  voice: string;
   /** Phrases incrustées (mode « texte » uniquement). */
   lines: Line[];
 };
@@ -19,18 +21,23 @@ export type FilmShot = {
 export const FILM_SHOTS: FilmShot[] = [
   {
     clip: "clips/plan1-serveurs.mp4",
+    voice: "audio/voix1.mp3",
     lines: [{ runs: [{ text: "Tu veux vendre de " }, { text: "l’IA", underline: true }, { text: "." }] }],
   },
-  { clip: "clips/plan2-flux.mp4", lines: [l("Tu n’as pas l’infrastructure.")] },
-  { clip: "clips/plan3-blocs.mp4", lines: [l("Nous, oui.", true)] },
+  { clip: "clips/plan2-flux.mp4",
+    voice: "audio/voix2.mp3", lines: [l("Tu n’as pas l’infrastructure.")] },
+  { clip: "clips/plan3-blocs.mp4",
+    voice: "audio/voix3.mp3", lines: [l("Nous, oui.", true)] },
   {
     clip: "clips/plan4-surface.mp4",
+    voice: "audio/voix4.mp3",
     lines: [
       { runs: [{ text: "Ta marque", underline: true }, { text: " devant." }] },
       l(`Nous, dans${nb}l’ombre.`, true),
     ],
   },
-  { clip: "clips/plan5-final.mp4", lines: [] },
+  { clip: "clips/plan5-final.mp4",
+    voice: "audio/voix5.mp3", lines: [] },
 ];
 
 export const FILM_END = {

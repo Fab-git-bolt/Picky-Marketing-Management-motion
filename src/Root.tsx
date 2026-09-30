@@ -3,7 +3,7 @@ import { FORMATS, type Format } from "./brand/formats";
 import { DURATION_IN_FRAMES, FPS } from "./brand/tokens";
 import type { Angle } from "./copy";
 import { PickyAd, type PickyAdProps } from "./PickyAd";
-import { FILM_DURATION, PickyFilm, type PickyFilmProps } from "./film/PickyFilm";
+import { calculateFilmMetadata, FILM_DURATION, PickyFilm, type PickyFilmProps } from "./film/PickyFilm";
 
 const ANGLES: Angle[] = ["manque-a-gagner", "revenu-sans-risque"];
 const FORMAT_LIST: Format[] = ["4:5", "1:1", "9:16"];
@@ -51,6 +51,7 @@ export const RemotionRoot: React.FC = () => (
           width={1080}
           height={1920}
           defaultProps={defaultProps}
+          calculateMetadata={calculateFilmMetadata}
         />
       );
     })}

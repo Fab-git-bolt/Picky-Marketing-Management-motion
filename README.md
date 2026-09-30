@@ -29,6 +29,10 @@ Composant `PickyFilm`, prop `mode` : `"texte"` (phrases incrustées) ou `"voix-o
 5 clips de `public/clips/` × 4,4 s, fondu enchaîné 0,4 s, voile marine diagonal sur
 chaque clip. Textes dans `src/film/copy.ts` (tutoiement assumé pour ce film).
 
+Voix off (mode `voix-off`) : `public/audio/voix1…5.mp3`, une par plan, volume 1,0, départ
+0,3 s après le début du plan. Les durées sont mesurées au rendu : si une voix (plus 0,3 s
+de marge) dépasse 4,4 s, son plan s'allonge d'autant et le film avec.
+
 ## Props du composant `PickyAd`
 
 | Prop     | Valeurs                                     |
