@@ -177,7 +177,8 @@ export const EndScene: React.FC<{ story: Storyboard }> = ({ story }) => {
             fontSize: s(26),
             letterSpacing: "0.15em",
             color: color.sky,
-            textTransform: "uppercase",
+            // Exception à la règle « mono en capitales » : une adresse doit se recopier à l'identique.
+            textTransform: "none",
           }}
         >
           <Typed text={story.end.url} start={18} hold={Infinity} />

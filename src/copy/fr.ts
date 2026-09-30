@@ -10,7 +10,8 @@ const CONCLUSION = l(`Sept briques, une${nb}infrastructure.`, true);
 const END = {
   descriptor: "Infrastructure IA en marque blanche",
   cta: "Devenez partenaire →",
-  url: "partners.pickyllc.com",
+  // Formulaire partenaire. Affichée telle quelle : le fragment « #contact » est sensible à la casse.
+  url: "pickyllc.com/#contact",
 };
 
 export const COPY_FR: Record<Angle, Storyboard> = {
