@@ -15,6 +15,8 @@ export type Storyboard = {
   spec: {
     lead?: Line;
     tab: string;
+    /** Ligne de statut de la fiche : clé mono et valeur précédée du marqueur ■. */
+    status: { key: string; value: string };
     conclusion: Line;
     followUp?: Line;
   };

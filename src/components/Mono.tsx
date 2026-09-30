@@ -1,6 +1,7 @@
 import { color, radius } from "../brand/tokens";
 import { monoFamily } from "../brand/fonts";
 import { useSize } from "./Frame";
+import { Typed } from "./Typed";
 
 /** JetBrains Mono, toujours en capitales, interlettrage 0,15–0,2 em. */
 export const Mono: React.FC<{
@@ -30,10 +31,14 @@ export const Mono: React.FC<{
   );
 };
 
-/** Eyebrow : « // LABEL » en Sky. */
-export const Eyebrow: React.FC<{ text: string; style?: React.CSSProperties }> = ({ text, style }) => (
+/** Eyebrow : « // LABEL » en Sky, tapé à la machine à partir de `start`. */
+export const Eyebrow: React.FC<{ text: string; start?: number; style?: React.CSSProperties }> = ({
+  text,
+  start = 0,
+  style,
+}) => (
   <Mono size={22} tone={color.sky} style={style}>
-    {text.startsWith("//") ? text : `// ${text}`}
+    <Typed text={text.startsWith("//") ? text : `// ${text}`} start={start} />
   </Mono>
 );
 

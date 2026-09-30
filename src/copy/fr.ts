@@ -5,6 +5,7 @@ const nb = " ";
 
 const EYEBROW = "// INFRASTRUCTURE IA · MARQUE BLANCHE";
 const TAB = "SPEC · 7 BRIQUES";
+const STATUS = { key: "// STATUT", value: "DISPONIBLE SOUS VOTRE MARQUE" };
 const CONCLUSION = l(`Sept briques, une${nb}infrastructure.`, true);
 const END = {
   descriptor: "Infrastructure IA en marque blanche",
@@ -23,6 +24,7 @@ export const COPY_FR: Record<Angle, Storyboard> = {
     spec: {
       lead: l(`Et si vous disiez oui${nb}?`),
       tab: TAB,
+      status: STATUS,
       conclusion: CONCLUSION,
     },
     promise: [
@@ -42,6 +44,7 @@ export const COPY_FR: Record<Angle, Storyboard> = {
     problem: [l("Sans studio."), l("Sans développeurs."), l("Sans infrastructure.")],
     spec: {
       tab: TAB,
+      status: STATUS,
       conclusion: CONCLUSION,
       followUp: l("Nous les construisons.\nVous les revendez."),
     },

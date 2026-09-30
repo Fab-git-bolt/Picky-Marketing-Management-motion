@@ -3,11 +3,12 @@ import { body, monoFamily } from "../brand/fonts";
 import type { Product } from "../brand/products";
 import type { Line, Storyboard } from "../copy";
 import { Stack, useSize } from "../components/Frame";
-import { Headline } from "../components/Headline";
+import { Headline, type HeadlineLevel } from "../components/Headline";
 import { Eyebrow, Mono, Tag } from "../components/Mono";
-import { SpecCard } from "../components/SpecCard";
+import { ROW_STAGGER, SpecCard } from "../components/SpecCard";
+import { Typed, typeDuration } from "../components/Typed";
 import { Wordmark } from "../components/Wordmark";
-import { useAppear } from "../components/motion";
+import { useAppear, useProgress, useSlot } from "../components/motion";
 
 const Appear: React.FC<{ at: number; children: React.ReactNode; style?: React.CSSProperties }> = ({
   at,
@@ -15,30 +16,43 @@ const Appear: React.FC<{ at: number; children: React.ReactNode; style?: React.CS
   style,
 }) => <div style={{ ...useAppear(at), ...style }}>{children}</div>;
 
-const UNDERLINE_DELAY = 10;
+/** Titre qui entre « en fente » ; le soulignement rouille se trace ensuite en wipe. */
+const SlotHeadline: React.FC<{
+  line: Line;
+  at: number;
+  level?: HeadlineLevel;
+  tone?: string;
+  style?: React.CSSProperties;
+}> = ({ line, at, level = "h2", tone, style }) => {
+  const slot = useSlot(at);
+  return (
+    <div style={{ ...slot.outer, ...style }}>
+      <div style={slot.inner}>
+        <Headline line={line} level={level} tone={tone} underlineAt={at + UNDERLINE_DELAY} />
+      </div>
+    </div>
+  );
+};
 
-/** 0–2 s · eyebrow + H1 avec soulignement rouille. */
-export const HookScene: React.FC<{ story: Storyboard }> = ({ story }) => (
-  <Stack gap={36}>
-    <Appear at={0}>
-      <Eyebrow text={story.eyebrow} />
-    </Appear>
-    <Appear at={5}>
-      <Headline line={story.hook} level="h1" underlineAt={5 + UNDERLINE_DELAY} />
-    </Appear>
-  </Stack>
-);
+const UNDERLINE_DELAY = 8;
+
+/** 0–2 s · eyebrow tapé + H1 avec soulignement rouille. */
+export const HookScene: React.FC<{ story: Storyboard }> = ({ story }) => {
+  const h1At = Math.min(typeDuration(story.eyebrow) - 8, 18);
+  return (
+    <Stack gap={36}>
+      <Eyebrow text={story.eyebrow} start={0} />
+      <SlotHeadline line={story.hook} at={h1At} level="h1" />
+    </Stack>
+  );
+};
 
 /**
- * Lignes enchaînées (« trois temps »). Les lignes romaines tombent toutes les
- * `beat` frames ; la ligne en italique (conclusion) arrive après une pause.
+ * Lignes enchaînées (« trois temps ») : empilement séquentiel, chaque ligne
+ * entre en fente toutes les `beat` frames ; la ligne en italique
+ * (conclusion) arrive après une pause.
  */
-const Beats: React.FC<{ lines: Line[]; beat: number; pause: number; level?: "h1" | "h2" }> = ({
-  lines,
-  beat,
-  pause,
-  level = "h2",
-}) => {
+const Beats: React.FC<{ lines: Line[]; beat: number; pause: number }> = ({ lines, beat, pause }) => {
   const s = useSize();
   let t = 0;
   return (
@@ -46,9 +60,12 @@ const Beats: React.FC<{ lines: Line[]; beat: number; pause: number; level?: "h1"
       {lines.map((line, i) => {
         const at = i === 0 ? 0 : (t += line.italic ? pause : beat);
         return (
-          <Appear key={i} at={at} style={line.italic && i > 0 ? { marginTop: s(28) } : undefined}>
-            <Headline line={line} level={level} underlineAt={at + UNDERLINE_DELAY} />
-          </Appear>
+          <SlotHeadline
+            key={i}
+            line={line}
+            at={at}
+            style={line.italic && i > 0 ? { marginTop: s(28) } : undefined}
+          />
         );
       })}
     </Stack>
@@ -57,34 +74,24 @@ const Beats: React.FC<{ lines: Line[]; beat: number; pause: number; level?: "h1"
 
 /** 2–6 s */
 export const ProblemScene: React.FC<{ story: Storyboard }> = ({ story }) => (
-  <Beats lines={story.problem} beat={32} pause={40} />
+  <Beats lines={story.problem} beat={14} pause={36} />
 );
 
-/** 6–11 s · spec card des sept briques. */
+/** 6–11 s · la spec card des sept briques se construit. */
 export const SpecScene: React.FC<{ story: Storyboard; bricks: Product[] }> = ({ story, bricks }) => {
-  const { lead, tab, conclusion, followUp } = story.spec;
-  const cardAt = lead ? 30 : 0;
-  const rowsDone = cardAt + 6 + bricks.length * 3 + 9;
-  const conclusionAt = rowsDone + 12;
+  const { lead, tab, status, conclusion, followUp } = story.spec;
+  const cardAt = lead ? 22 : 0;
+  // La conclusion arrive quand la dernière pastille est posée ; le statut s'écrit en parallèle.
+  const conclusionAt = cardAt + 10 + bricks.length * ROW_STAGGER + 18;
   return (
     <Stack gap={44}>
-      {lead && (
-        <Appear at={0}>
-          <Headline line={lead} level="h2" />
-        </Appear>
-      )}
+      {lead && <SlotHeadline line={lead} at={0} />}
       <div style={{ width: "100%" }}>
-        <SpecCard tab={tab} bricks={bricks} start={cardAt} />
+        <SpecCard tab={tab} bricks={bricks} status={status} start={cardAt} />
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%" }}>
-        <Appear at={conclusionAt}>
-          <Headline line={conclusion} level="h3" />
-        </Appear>
-        {followUp && (
-          <Appear at={conclusionAt + 36}>
-            <Headline line={followUp} level="h3" tone={color.wire} />
-          </Appear>
-        )}
+        <SlotHeadline line={conclusion} at={conclusionAt} level="h3" />
+        {followUp && <SlotHeadline line={followUp} at={conclusionAt + 30} level="h3" tone={color.wire} />}
       </div>
     </Stack>
   );
@@ -92,34 +99,48 @@ export const SpecScene: React.FC<{ story: Storyboard; bricks: Product[] }> = ({ 
 
 /** 11–15 s */
 export const PromiseScene: React.FC<{ story: Storyboard }> = ({ story }) => (
-  <Beats lines={story.promise} beat={22} pause={30} />
+  <Beats lines={story.promise} beat={14} pause={30} />
 );
 
-/** 15–18 s · labels mono. */
+/** 15–18 s · labels mono tapés un par un. */
 export const LabelsScene: React.FC<{ story: Storyboard }> = ({ story }) => {
   const s = useSize();
+  let at = 0;
   return (
     <Stack gap={22}>
-      {story.labels.map((label, i) => (
-        <Appear key={label} at={i * 8}>
-          <Tag>
-            <Mono size={20} tone={color.sky}>
-              {String(i + 1).padStart(2, "0")}
-            </Mono>
-            <Mono size={20} tone={color.wire}>
-              ·
-            </Mono>
-            <Mono size={34} tone={color.paper} weight={500} style={{ marginLeft: s(4) }}>
-              {label}
-            </Mono>
-          </Tag>
-        </Appear>
-      ))}
+      {story.labels.map((label, i) => {
+        const start = at;
+        at += 4 + typeDuration(label) + 4;
+        return <LabelTag key={label} index={i} label={label} start={start} last={i === story.labels.length - 1} s={s} />;
+      })}
     </Stack>
   );
 };
 
-/** 18–20 s · wordmark, descripteur, CTA. */
+const LabelTag: React.FC<{
+  index: number;
+  label: string;
+  start: number;
+  last: boolean;
+  s: (px: number) => number;
+}> = ({ index, label, start, last, s }) => {
+  const box = useProgress(start, 5);
+  return (
+    <Tag style={{ opacity: box }}>
+      <Mono size={20} tone={color.sky}>
+        {String(index + 1).padStart(2, "0")}
+      </Mono>
+      <Mono size={20} tone={color.wire}>
+        ·
+      </Mono>
+      <Mono size={34} tone={color.paper} weight={500} style={{ marginLeft: s(4) }}>
+        <Typed text={label} start={start + 4} hold={last ? 40 : 0} />
+      </Mono>
+    </Tag>
+  );
+};
+
+/** 18–20 s · wordmark, descripteur, CTA ; l'adresse se tape et le curseur reste. */
 export const EndScene: React.FC<{ story: Storyboard }> = ({ story }) => {
   const s = useSize();
   return (
@@ -132,7 +153,7 @@ export const EndScene: React.FC<{ story: Storyboard }> = ({ story }) => {
           {story.end.descriptor}
         </span>
       </Appear>
-      <Appear at={14} style={{ marginTop: s(88) }}>
+      <Appear at={12} style={{ marginTop: s(88) }}>
         {/* Bouton variante Sky (seule variante autorisée sur fond Ink) : contour, jamais plein rouille. */}
         <div
           style={{
@@ -149,18 +170,19 @@ export const EndScene: React.FC<{ story: Storyboard }> = ({ story }) => {
           {story.end.cta}
         </div>
       </Appear>
-      <Appear at={18} style={{ marginTop: s(30) }}>
+      <div style={{ marginTop: s(30) }}>
         <span
           style={{
             fontFamily: monoFamily,
             fontSize: s(26),
             letterSpacing: "0.15em",
             color: color.sky,
+            textTransform: "uppercase",
           }}
         >
-          {story.end.url.toUpperCase()}
+          <Typed text={story.end.url} start={18} hold={Infinity} />
         </span>
-      </Appear>
+      </div>
     </Stack>
   );
 };

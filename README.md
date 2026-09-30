@@ -65,6 +65,10 @@ public/fonts/ Fraunces, Inter, JetBrains Mono (auto-hébergées, OFL-1.1)
   et le point du logo. Pas de bouton plein, pas d'aplat.
 - Une seule phrase en italique par bloc, la conclusion.
 - Mono toujours en capitales, interlettrage 0,15–0,2 em. Aucune icône : `//`, `·`, `→`.
+- Mouvement « console qui s'assemble » : mono tapé à la machine avec curseur (`Typed`),
+  spec card qui se construit (onglet, lignes, pointillés tracés, marqueur ■ qui s'allume),
+  pastilles qui s'assemblent (carré → P → lettre → point + une impulsion), titres en fente,
+  soulignement rouille en wipe.
 - Mouvement 0,15–0,4 s en `cubic-bezier(0.4, 0, 0.2, 1)`, sans rebond ni parallaxe.
 - Texte confiné aux safe zones de chaque format (`src/brand/formats.ts`).
 - Aucun prix ni chiffre de marge à l'écran ; vocabulaire interdit exclu (charte §11).

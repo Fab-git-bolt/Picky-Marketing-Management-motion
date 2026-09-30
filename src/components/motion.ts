@@ -16,3 +16,15 @@ export const useAppear = (start: number, duration: number = motion.slow): React.
   const p = useProgress(start, duration);
   return { opacity: p, transform: `translateY(${(1 - p) * motion.rise}px)` };
 };
+
+/**
+ * Entrée « en fente » pour les titres : la ligne monte de sous un bord de
+ * découpe fixe, en 0,2 s. Net et sec, sans rebond ni fondu long.
+ */
+export const useSlot = (start: number, duration = 6) => {
+  const p = useProgress(start, duration);
+  return {
+    outer: { clipPath: "inset(-20% -4% -28% -4%)" } as React.CSSProperties,
+    inner: { opacity: p > 0 ? 1 : 0, transform: `translateY(${(1 - p) * 75}%)` } as React.CSSProperties,
+  };
+};
