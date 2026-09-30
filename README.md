@@ -38,7 +38,20 @@ src/
   PickyAd.tsx composition paramétrable
   Root.tsx    une composition par angle × format
 public/fonts/ Fraunces, Inter, JetBrains Mono (auto-hébergées, OFL-1.1)
+public/musique.mp3  musique de fond
+public/sfx/   sons d'interface optionnels (absent par défaut)
 ```
+
+## Audio (`src/audio/Soundtrack.tsx`)
+
+- Musique : `public/musique.mp3`, volume 0,15, fondu d'entrée 0,5 s, de sortie 1 s.
+- Sons d'interface **optionnels** : déposer des fichiers dans `public/sfx/` (wav, mp3, ogg…).
+  Un nom contenant `tick`, `key` ou `type` → frappe machine (un tick toutes les 4 frames au plus) ;
+  un nom contenant `clic` ou `click` → arrivée des lignes de la spec card et allumage du ■.
+  Un seul fichier sert aux deux usages. Volume 0,25. Détection automatique au rendu.
+- Les calages viennent des mêmes repères que l'animation (`specCardCues`, `labelStarts`…) :
+  toute retouche de timing reste synchronisée.
+- La vidéo reste lisible sans le son : aucune information n'est portée par l'audio.
 
 ## Découpage
 

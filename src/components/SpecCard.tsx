@@ -10,11 +10,25 @@ import { Typed, typeDuration } from "./Typed";
 /** Décalage entre deux lignes de la fiche, en frames. */
 export const ROW_STAGGER = 5;
 /** Délai entre l'ouverture de la fiche et la première ligne. */
-const FIRST_ROW = 10;
+export const FIRST_ROW = 10;
 
 /** Frame (relative à `start`) à laquelle la fiche est entièrement construite. */
 export const specCardDuration = (rows: number, status: { key: string; value: string }) =>
   FIRST_ROW + rows * ROW_STAGGER + 6 + typeDuration(status.key) + 4 + typeDuration(status.value);
+
+/**
+ * Repères de construction (frames relatives au début de la fiche) :
+ * arrivée de chaque ligne, début de la ligne de statut, allumage du marqueur ■.
+ * Source unique pour l'animation et pour le calage des sons d'interface.
+ */
+export const specCardCues = (rows: number, status: { key: string; value: string }) => {
+  const statusAt = FIRST_ROW + rows * ROW_STAGGER + 6;
+  return {
+    rows: Array.from({ length: rows }, (_, i) => FIRST_ROW + i * ROW_STAGGER),
+    statusAt,
+    markerAt: statusAt + typeDuration(status.key) + 2,
+  };
+};
 
 /**
  * Spec card — élément signature. Fiche mono sur fond Ink, onglet chevauchant
@@ -32,7 +46,7 @@ export const SpecCard: React.FC<{
   const s = useSize();
   const frame = useProgress(start, 9);
   const tabIn = useProgress(start + 3, 9);
-  const statusAt = start + FIRST_ROW + bricks.length * ROW_STAGGER + 6;
+  const cues = specCardCues(bricks.length, status);
   return (
     <div
       style={{
@@ -76,9 +90,9 @@ export const SpecCard: React.FC<{
       </span>
       <div style={{ position: "relative" }}>
         {bricks.map((b, i) => (
-          <Row key={b.code} product={b} start={start + FIRST_ROW + i * ROW_STAGGER} />
+          <Row key={b.code} product={b} start={start + cues.rows[i]} />
         ))}
-        <StatusRow status={status} start={statusAt} />
+        <StatusRow status={status} start={start + cues.statusAt} markerAt={start + cues.markerAt} />
       </div>
     </div>
   );
@@ -134,10 +148,13 @@ const Row: React.FC<{ product: Product; start: number }> = ({ product, start }) 
   );
 };
 
-const StatusRow: React.FC<{ status: { key: string; value: string }; start: number }> = ({ status, start }) => {
+const StatusRow: React.FC<{ status: { key: string; value: string }; start: number; markerAt: number }> = ({
+  status,
+  start,
+  markerAt,
+}) => {
   const s = useSize();
   const frame = useCurrentFrame();
-  const markerAt = start + typeDuration(status.key) + 2;
   // Le marqueur ■ s'allume : bascule du filet éteint vers Sky en 0,15 s.
   const lit = interpolate(frame, [markerAt, markerAt + 5], [0, 1], {
     easing: ease,

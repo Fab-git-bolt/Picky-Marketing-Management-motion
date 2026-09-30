@@ -77,10 +77,26 @@ export const ProblemScene: React.FC<{ story: Storyboard }> = ({ story }) => (
   <Beats lines={story.problem} beat={14} pause={36} />
 );
 
+/** Frame (relative à la scène) où la spec card commence à se construire. */
+export const specCardAt = (story: Storyboard) => (story.spec.lead ? 22 : 0);
+
+/** Frames (relatives à la scène) où chaque label commence ; la frappe démarre 4 frames plus tard. */
+export const labelStarts = (story: Storyboard) => {
+  let at = 0;
+  return story.labels.map((label) => {
+    const start = at;
+    at += 4 + typeDuration(label) + 4;
+    return start;
+  });
+};
+
+/** Frame (relative à la scène finale) où l'adresse commence à se taper. */
+export const END_URL_AT = 18;
+
 /** 6–11 s · la spec card des sept briques se construit. */
 export const SpecScene: React.FC<{ story: Storyboard; bricks: Product[] }> = ({ story, bricks }) => {
   const { lead, tab, status, conclusion, followUp } = story.spec;
-  const cardAt = lead ? 22 : 0;
+  const cardAt = specCardAt(story);
   // La conclusion arrive quand la dernière pastille est posée ; le statut s'écrit en parallèle.
   const conclusionAt = cardAt + 10 + bricks.length * ROW_STAGGER + 18;
   return (
@@ -105,14 +121,12 @@ export const PromiseScene: React.FC<{ story: Storyboard }> = ({ story }) => (
 /** 15–18 s · labels mono tapés un par un. */
 export const LabelsScene: React.FC<{ story: Storyboard }> = ({ story }) => {
   const s = useSize();
-  let at = 0;
+  const starts = labelStarts(story);
   return (
     <Stack gap={22}>
-      {story.labels.map((label, i) => {
-        const start = at;
-        at += 4 + typeDuration(label) + 4;
-        return <LabelTag key={label} index={i} label={label} start={start} last={i === story.labels.length - 1} s={s} />;
-      })}
+      {story.labels.map((label, i) => (
+        <LabelTag key={label} index={i} label={label} start={starts[i]} last={i === story.labels.length - 1} s={s} />
+      ))}
     </Stack>
   );
 };
@@ -181,7 +195,7 @@ export const EndScene: React.FC<{ story: Storyboard }> = ({ story }) => {
             textTransform: "none",
           }}
         >
-          <Typed text={story.end.url} start={18} hold={Infinity} />
+          <Typed text={story.end.url} start={END_URL_AT} hold={Infinity} />
         </span>
       </div>
     </Stack>

@@ -3,6 +3,7 @@ import "./brand/fonts";
 import type { Format } from "./brand/formats";
 import type { Angle, Lang } from "./copy";
 import { getCopy } from "./copy";
+import { Soundtrack } from "./audio/Soundtrack";
 import { Frame } from "./components/Frame";
 import { SceneCounter } from "./components/SceneCounter";
 import { SceneFade } from "./scenes/SceneFade";
@@ -27,6 +28,7 @@ export const PickyAd: React.FC<PickyAdProps> = ({ angle, format, lang }) => {
   );
   return (
     <Frame format={format}>
+      <Soundtrack story={story} />
       <SceneCounter />
       {scene("hook", <HookScene story={story} />)}
       {scene("problem", <ProblemScene story={story} />)}
