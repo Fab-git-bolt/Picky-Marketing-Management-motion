@@ -52,6 +52,9 @@ public/fonts/ Fraunces, Inter, JetBrains Mono (auto-hébergées, OFL-1.1)
 
 ## Garde-fous de charte appliqués dans le code
 
+- Fond (`src/components/Background.tsx`) : voile diagonal 135° Ink → Marine, trame mono
+  `//` · `·` · `P-01…P-07` à 5 % de Paper en dérive lente (atténuée derrière le texte),
+  filets de marge 1 px Paper 12 %. Aucune icône, image ni rouille.
 - Fond Ink `#0B1220`, texte Paper `#F5F3EE` — jamais de `#FFFFFF`.
 - Rouille `#C4491D` uniquement pour le soulignement d'un mot-clé (3 px, décalé de 5 px)
   et le point du logo. Pas de bouton plein, pas d'aplat.

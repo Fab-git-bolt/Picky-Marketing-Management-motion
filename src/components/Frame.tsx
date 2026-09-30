@@ -2,6 +2,7 @@ import { createContext, useContext } from "react";
 import { AbsoluteFill } from "remotion";
 import { FORMATS, type Format, typeScale } from "../brand/formats";
 import { color } from "../brand/tokens";
+import { Background } from "./Background";
 
 type FrameCtx = { format: Format; scale: number };
 const Ctx = createContext<FrameCtx>({ format: "4:5", scale: 1 });
@@ -13,12 +14,13 @@ export const useSize = () => {
   return (px: number) => Math.round(px * scale);
 };
 
-/** Fond Ink + zone utile (safe zone) dans laquelle tout le texte est posé. */
+/** Fond (voile, trame, filets) + zone utile (safe zone) dans laquelle tout le texte est posé. */
 export const Frame: React.FC<{ format: Format; children: React.ReactNode }> = ({ format, children }) => {
   const { safe } = FORMATS[format];
   return (
     <Ctx.Provider value={{ format, scale: typeScale(format) }}>
       <AbsoluteFill style={{ backgroundColor: color.ink }}>
+        <Background format={format} />
         <div
           style={{
             position: "absolute",
