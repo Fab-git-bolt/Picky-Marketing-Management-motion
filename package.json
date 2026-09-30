@@ -8,7 +8,10 @@
     "typecheck": "tsc --noEmit",
     "render:manque-a-gagner": "remotion render manque-a-gagner-4x5 out/picky-manque-a-gagner-4x5.mp4",
     "render:revenu-sans-risque": "remotion render revenu-sans-risque-4x5 out/picky-revenu-sans-risque-4x5.mp4",
-    "render:all": "npm run render:manque-a-gagner && npm run render:revenu-sans-risque"
+    "render:all": "npm run render:manque-a-gagner && npm run render:revenu-sans-risque",
+    "render:film-texte": "remotion render film-texte-9x16 out/picky-film-texte-9x16.mp4",
+    "render:film-voixoff": "remotion render film-voixoff-9x16 out/picky-film-voixoff-9x16.mp4",
+    "render:films": "npm run render:film-texte && npm run render:film-voixoff"
   },
   "dependencies": {
     "@remotion/cli": "4.0.530",

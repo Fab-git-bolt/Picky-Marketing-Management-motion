@@ -16,6 +16,19 @@ npm run studio                     # prévisualisation interactive
 Autres formats : `npx remotion render <angle>-<1x1|4x5|9x16> out/<fichier>.mp4`
 (liste complète : `npx remotion compositions src/index.ts`).
 
+## Film de présentation 9:16 (`src/film/`)
+
+```bash
+npm run render:film-texte    # → out/picky-film-texte-9x16.mp4
+npm run render:film-voixoff  # → out/picky-film-voixoff-9x16.mp4
+npm run render:films         # les deux
+```
+
+Composant `PickyFilm`, prop `mode` : `"texte"` (phrases incrustées) ou `"voix-off"`
+(plans nus, seul le plan final logo + CTA garde du texte). 1080×1920, 30 fps, 22 s :
+5 clips de `public/clips/` × 4,4 s, fondu enchaîné 0,4 s, voile marine diagonal sur
+chaque clip. Textes dans `src/film/copy.ts` (tutoiement assumé pour ce film).
+
 ## Props du composant `PickyAd`
 
 | Prop     | Valeurs                                     |

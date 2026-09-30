@@ -3,6 +3,7 @@ import { FORMATS, type Format } from "./brand/formats";
 import { DURATION_IN_FRAMES, FPS } from "./brand/tokens";
 import type { Angle } from "./copy";
 import { PickyAd, type PickyAdProps } from "./PickyAd";
+import { FILM_DURATION, PickyFilm, type PickyFilmProps } from "./film/PickyFilm";
 
 const ANGLES: Angle[] = ["manque-a-gagner", "revenu-sans-risque"];
 const FORMAT_LIST: Format[] = ["4:5", "1:1", "9:16"];
@@ -37,5 +38,21 @@ export const RemotionRoot: React.FC = () => (
         );
       }),
     )}
+    {/* Film de présentation 9:16 à partir des clips de public/clips/. */}
+    {(["texte", "voix-off"] as const).map((mode) => {
+      const defaultProps: PickyFilmProps = { mode };
+      return (
+        <Composition
+          key={mode}
+          id={`film-${mode.replace("-", "")}-9x16`}
+          component={PickyFilm}
+          durationInFrames={FILM_DURATION}
+          fps={FPS}
+          width={1080}
+          height={1920}
+          defaultProps={defaultProps}
+        />
+      );
+    })}
   </>
 );

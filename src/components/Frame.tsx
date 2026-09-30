@@ -15,12 +15,17 @@ export const useSize = () => {
 };
 
 /** Fond (voile, trame, filets) + zone utile (safe zone) dans laquelle tout le texte est posé. */
-export const Frame: React.FC<{ format: Format; children: React.ReactNode }> = ({ format, children }) => {
+export const Frame: React.FC<{
+  format: Format;
+  /** `false` : fond transparent (texte posé sur une vidéo, par exemple). */
+  background?: boolean;
+  children: React.ReactNode;
+}> = ({ format, background = true, children }) => {
   const { safe } = FORMATS[format];
   return (
     <Ctx.Provider value={{ format, scale: typeScale(format) }}>
-      <AbsoluteFill style={{ backgroundColor: color.ink }}>
-        <Background format={format} />
+      <AbsoluteFill style={{ backgroundColor: background ? color.ink : "transparent" }}>
+        {background && <Background format={format} />}
         <div
           style={{
             position: "absolute",
