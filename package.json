@@ -1,0 +1,24 @@
+{
+  "name": "picky-motion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Template Remotion pour les vidéos motion Picky — infrastructure IA en marque blanche.",
+  "scripts": {
+    "studio": "remotion studio",
+    "typecheck": "tsc --noEmit",
+    "render:manque-a-gagner": "remotion render manque-a-gagner-4x5 out/picky-manque-a-gagner-4x5.mp4",
+    "render:revenu-sans-risque": "remotion render revenu-sans-risque-4x5 out/picky-revenu-sans-risque-4x5.mp4",
+    "render:all": "npm run render:manque-a-gagner && npm run render:revenu-sans-risque"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.530",
+    "@remotion/fonts": "4.0.530",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.530"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "7.0.2"
+  }
+}
