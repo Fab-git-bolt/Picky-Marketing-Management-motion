@@ -15,7 +15,6 @@ import { body, monoFamily } from "../brand/fonts";
 import { color, ease, FPS, radius } from "../brand/tokens";
 import { Frame, Stack, useSize } from "../components/Frame";
 import { Headline } from "../components/Headline";
-import { Mono } from "../components/Mono";
 import { Typed } from "../components/Typed";
 import { Wordmark } from "../components/Wordmark";
 import { useAppear, useProgress, useSlot } from "../components/motion";
@@ -169,13 +168,8 @@ const FilmLine: React.FC<{ line: (typeof FILM_SHOTS)[number]["lines"][number]; a
   );
 };
 
-/** Texte d'un plan : repère mono tapé (« // 01 · 04 »), puis la ou les phrases. */
-const ShotText: React.FC<{ index: number; total: number; shot: (typeof FILM_SHOTS)[number]; length: number }> = ({
-  index,
-  total,
-  shot,
-  length,
-}) => {
+/** Texte d'un plan : la ou les phrases, entrées en fente. */
+const ShotText: React.FC<{ shot: (typeof FILM_SHOTS)[number]; length: number }> = ({ shot, length }) => {
   const frame = useCurrentFrame();
   // Sortie : fondu de 0,3 s, terminé quand le plan suivant commence à apparaître.
   const out = interpolate(frame, [length - CROSSFADE - 9, length - CROSSFADE], [1, 0], {
@@ -183,12 +177,8 @@ const ShotText: React.FC<{ index: number; total: number; shot: (typeof FILM_SHOT
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const pad = (n: number) => String(n).padStart(2, "0");
   return (
-    <Stack gap={36} style={{ opacity: out }}>
-      <Mono size={22} tone={color.sky}>
-        <Typed text={`// ${pad(index + 1)} · ${pad(total)}`} start={CROSSFADE} hold={12} />
-      </Mono>
+    <Stack style={{ opacity: out }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {shot.lines.map((line, i) => (
           <FilmLine key={i} line={line} at={CROSSFADE + 8 + i * 30} />
@@ -264,7 +254,7 @@ export const PickyFilm: React.FC<PickyFilmProps> = (props) => {
               {i === last ? (
                 <EndCard />
               ) : (
-                mode === "texte" && <ShotText index={i} total={last} shot={shot} length={duration} />
+                mode === "texte" && <ShotText shot={shot} length={duration} />
               )}
             </Frame>
           </Sequence>
