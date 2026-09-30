@@ -33,6 +33,10 @@ Voix off (mode `voix-off`) : `public/audio/voix1…5.mp3`, une par plan, volume 
 0,3 s après le début du plan. Les durées sont mesurées au rendu : si une voix (plus 0,3 s
 de marge) dépasse 4,4 s, son plan s'allonge d'autant et le film avec.
 
+Musique (deux versions) : `public/audio/musique.mp3`, volume 0,18 en `texte`, 0,12 en
+`voix-off`, fondu d'entrée 0,5 s et de sortie 1 s calés sur la durée du film ; bouclée si
+plus courte que le film, coupée sinon.
+
 ## Props du composant `PickyAd`
 
 | Prop     | Valeurs                                     |

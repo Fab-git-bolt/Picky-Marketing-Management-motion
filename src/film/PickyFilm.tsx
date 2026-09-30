@@ -8,6 +8,7 @@ import {
   Sequence,
   staticFile,
   useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
 import "../brand/fonts";
 import { body, monoFamily } from "../brand/fonts";
@@ -32,10 +33,24 @@ const VOICE_OFFSET = Math.round(0.3 * FPS);
 /** Marge minimale après la fin d'une voix avant le fondu vers le plan suivant. */
 const VOICE_TAIL = Math.round(0.3 * FPS);
 
+/**
+ * Musique de fond, sur les deux versions : plus basse en voix-off pour laisser
+ * la voix intelligible. Fondu d'entrée 0,5 s, de sortie 1 s ; bouclée si elle
+ * est plus courte que le film, coupée (avec le fondu de sortie) si plus longue.
+ */
+const MUSIC = {
+  file: "audio/musique.mp3",
+  volume: { texte: 0.18, "voix-off": 0.12 } as Record<FilmMode, number>,
+  fadeIn: Math.round(0.5 * FPS),
+  fadeOut: 1 * FPS,
+};
+
 export type PickyFilmProps = {
   mode: FilmMode;
   /** Durées des voix off, en secondes — renseignées par calculateMetadata. */
   voiceDurations?: number[];
+  /** Durée de la musique, en secondes — renseignée par calculateMetadata. */
+  musicDuration?: number;
 };
 
 /**
@@ -54,10 +69,11 @@ export const calculateFilmMetadata: CalculateMetadataFunction<PickyFilmProps> = 
     props.mode === "voix-off"
       ? await Promise.all(FILM_SHOTS.map((shot) => getAudioDurationInSeconds(staticFile(shot.voice))))
       : undefined;
+  const musicDuration = await getAudioDurationInSeconds(staticFile(MUSIC.file));
   const lengths = shotLengths({ ...props, voiceDurations });
   return {
     durationInFrames: lengths.reduce((a, b) => a + b, 0),
-    props: { ...props, voiceDurations },
+    props: { ...props, voiceDurations, musicDuration },
   };
 };
 
@@ -81,6 +97,29 @@ const Veil: React.FC = () => (
     />
   </>
 );
+
+/** Musique de fond, fondus calés sur la durée réelle du film. */
+const Music: React.FC<{ mode: FilmMode; duration?: number }> = ({ mode, duration }) => {
+  const { durationInFrames } = useVideoConfig();
+  const loop = duration !== undefined && duration * FPS < durationInFrames;
+  return (
+    <Audio
+      src={staticFile(MUSIC.file)}
+      loop={loop}
+      // Avec la boucle, la courbe de volume suit le temps du film et non celui de chaque tour.
+      loopVolumeCurveBehavior="extend"
+      volume={(f) =>
+        MUSIC.volume[mode] *
+        interpolate(
+          f,
+          [0, MUSIC.fadeIn, durationInFrames - MUSIC.fadeOut, durationInFrames],
+          [0, 1, 1, 0],
+          { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+        )
+      }
+    />
+  );
+};
 
 /** Un clip plein cadre, qui entre en fondu (sauf le premier). */
 const Shot: React.FC<{ clip: string; fadeIn: boolean }> = ({ clip, fadeIn }) => {
@@ -209,6 +248,7 @@ export const PickyFilm: React.FC<PickyFilmProps> = (props) => {
           </Sequence>
         );
       })}
+      <Music mode={mode} duration={props.musicDuration} />
       {/* Voix off : volume plein, 0,3 s après le début de chaque plan. */}
       {mode === "voix-off" &&
         FILM_SHOTS.map((shot, i) => (
